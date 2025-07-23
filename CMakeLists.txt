@@ -29,6 +29,14 @@ add_sycl_to_target(
     computation_test.cpp
 )
 
+add_executable(computation_test2 computation_test2.cpp)
+add_sycl_to_target(
+  TARGET
+    computation_test2
+  SOURCES
+    computation_test2.cpp
+)
+
 #! only if you have installed nvidia cuda with codeplay plugin
 # set(SYCL_DEVICE_FLAGS "-fsycl-targets=spir64,nvptx64-nvidia-cuda")
 # target_compile_options(computation_test PRIVATE
