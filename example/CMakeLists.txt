@@ -9,11 +9,17 @@ function(add_sycl_executable TARGET_NAME)
     SOURCES
       ${SOURCE_FILE}
   )
+  
+  # TBB 라이브러리 찾기 및 링킹
+  find_package(TBB REQUIRED)
+  target_link_libraries(${TARGET_NAME} TBB::tbb)
 endfunction()
 
 add_sycl_executable(01_HelloSycl)
 add_sycl_executable(02_mat2d)
-
+add_sycl_executable(03_nd-range)
+add_sycl_executable(04_h-item)
+# add_sycl_executable(05_device)
 
 
 #! only if you have installed nvidia cuda with codeplay plugin

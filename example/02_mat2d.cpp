@@ -37,7 +37,9 @@ void naive_matrix_multiplication() {
   std::cout << "B = " << B << std::endl;
   std::cout << "C = " << C << std::endl << std::endl;
 
-  sycl::queue Q{sycl::host_selector{}};
+  sycl::queue Q{sycl::default_selector{}};
+	// sycl::queue queue{ sycl::gpu_selector{} };
+
 
   sycl::range<2> num_items{N, M};
 
