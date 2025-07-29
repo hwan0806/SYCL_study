@@ -38,12 +38,11 @@ void naive_matrix_multiplication() {
   std::cout << "C = " << C << std::endl << std::endl;
 
   sycl::queue Q{sycl::default_selector{}};
-	// sycl::queue queue{ sycl::gpu_selector{} };
-
+  // sycl::queue Q{sycl::cpu_selector{}};
 
   sycl::range<2> num_items{N, M};
 
-  // sycl::buffer<int, 2> a_buf{ &A[0][0], {N, M}};
+  // cpu memory(A, B, C)를 가지고 device memory(a_buf, b_buf, c_buf)를 생성
   sycl::buffer<int, 2> a_buf{&A[0][0], num_items};
   sycl::buffer<int, 2> b_buf{&B[0][0], num_items};
   sycl::buffer<int, 2> c_buf{&C[0][0], num_items};
@@ -55,6 +54,7 @@ void naive_matrix_multiplication() {
     auto c = sycl::accessor{c_buf, h};
 
     // auto kernel = [=](sycl::id<2> idx)
+    // item에는 세가지 종류 : 1. item 2. nd_item 3. h_item
     auto kernel = [=](sycl::item<2> idx) {
       // int n = idx[0];
       // int m = idx[1];
@@ -74,8 +74,19 @@ void naive_matrix_multiplication() {
   };
 
   Q.submit(task);
+  //! Q.wait()는 커널 완료만 보장. 데이터 전송은 별도 동기화 과정 필요
+  //! cpu_selector 시엔 결과물 출력된 반면, default_selector 시엔 결과물 출력 안된 이유
   Q.wait();
 
+  // SYCL buffer 동기화 규칙
+  // ---------------------------------------------
+  // 1. Host 메모리와 Device 메모리는 자동으로 동기화되지 않음
+  // 2. Host에서 결과를 확인하려면 아래 중 하나 필요:
+  //    (1) host_accessor 생성 시 자동 동기화 발생
+  //    (2) buffer의 scope 종료 시 RAII에 의해 동기화 발생
+  //    (3) queue.memcpy() 등 명시적 복사 수행 (USM의 경우)
+  // ---------------------------------------------
+  sycl::host_accessor h_c{c_buf};
   std::cout << "C = " << C << std::endl;
 }
 
